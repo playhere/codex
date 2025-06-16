@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #222;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        #score {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        #message {
+            margin-top: 10px;
+        }
+        canvas {
+            background-color: #000;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="score">Score: 0</div>
+    <canvas id="game" width="400" height="400"></canvas>
+    <div id="message"></div>
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const messageEl = document.getElementById('message');
+        const scale = 20;
+        const rows = canvas.height / scale;
+        const cols = canvas.width / scale;
+
+        let snake;
+        let fruit;
+        let speed = 150;
+        let interval;
+        let score = 0;
+        let gameOver = false;
+
+        class Snake {
+            constructor() {
+                this.body = [{ x: 10, y: 10 }];
+                this.xSpeed = 1;
+                this.ySpeed = 0;
+            }
+
+            draw() {
+                ctx.fillStyle = '#0f0';
+                for (let segment of this.body) {
+                    ctx.fillRect(segment.x * scale, segment.y * scale, scale, scale);
+                }
+            }
+
+            update() {
+                const head = { ...this.body[0] };
+                head.x += this.xSpeed;
+                head.y += this.ySpeed;
+
+                if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows || this.isCollision(head)) {
+                    endGame();
+                    return;
+                }
+
+                this.body.unshift(head);
+
+                if (head.x === fruit.x && head.y === fruit.y) {
+                    score++;
+                    scoreEl.textContent = `Score: ${score}`;
+                    if (speed > 50 && score % 5 === 0) {
+                        speed -= 10;
+                        restartInterval();
+                    }
+                    placeFruit();
+                } else {
+                    this.body.pop();
+                }
+            }
+
+            changeDirection(dir) {
+                switch (dir) {
+                    case 'ArrowUp':
+                        if (this.ySpeed === 0) {
+                            this.xSpeed = 0;
+                            this.ySpeed = -1;
+                        }
+                        break;
+                    case 'ArrowDown':
+                        if (this.ySpeed === 0) {
+                            this.xSpeed = 0;
+                            this.ySpeed = 1;
+                        }
+                        break;
+                    case 'ArrowLeft':
+                        if (this.xSpeed === 0) {
+                            this.xSpeed = -1;
+                            this.ySpeed = 0;
+                        }
+                        break;
+                    case 'ArrowRight':
+                        if (this.xSpeed === 0) {
+                            this.xSpeed = 1;
+                            this.ySpeed = 0;
+                        }
+                        break;
+                }
+            }
+
+            isCollision(pos) {
+                return this.body.some(segment => segment.x === pos.x && segment.y === pos.y);
+            }
+        }
+
+        class Fruit {
+            constructor() {
+                this.x = 0;
+                this.y = 0;
+            }
+
+            draw() {
+                ctx.fillStyle = 'red';
+                ctx.fillRect(this.x * scale, this.y * scale, scale, scale);
+            }
+        }
+
+        function placeFruit() {
+            fruit.x = Math.floor(Math.random() * cols);
+            fruit.y = Math.floor(Math.random() * rows);
+            if (snake.isCollision(fruit)) {
+                placeFruit();
+            }
+        }
+
+        function endGame() {
+            clearInterval(interval);
+            gameOver = true;
+            messageEl.textContent = 'Game Over! Press Enter to restart';
+        }
+
+        function restartInterval() {
+            clearInterval(interval);
+            interval = setInterval(gameLoop, speed);
+        }
+
+        function init() {
+            snake = new Snake();
+            fruit = new Fruit();
+            placeFruit();
+            score = 0;
+            speed = 150;
+            scoreEl.textContent = 'Score: 0';
+            messageEl.textContent = '';
+            gameOver = false;
+            restartInterval();
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            fruit.draw();
+            snake.update();
+            snake.draw();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (gameOver && e.key === 'Enter') {
+                init();
+            } else {
+                snake.changeDirection(e.key);
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>
