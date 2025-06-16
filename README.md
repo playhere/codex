@@ -12,4 +12,4 @@ Use the arrow keys to control the snake. When the game ends, press **Enter** to 
 
 ## Tetris Game
 
-Open `tetris.html` to play a classic Tetris clone. Move pieces with the arrow keys, rotate with **Q** and **W**, and try to clear as many lines as possible. Your score increases by 10 for every line cleared.
+Open `tetris.html` to play a classic Tetris clone. Move pieces left and right with the arrow keys. Press **Arrow Down** to drop a piece to the bottom instantly. Rotate clockwise with **Arrow Up** (or **W**) and counter‑clockwise with **Q**. Your score increases by 10 for every line cleared.

@@ -163,6 +163,18 @@
             dropCounter = 0;
         }
 
+        function playerHardDrop() {
+            while (!collide(arena, player)) {
+                player.pos.y++;
+            }
+            player.pos.y--;
+            merge(arena, player);
+            playerReset();
+            arenaSweep();
+            updateScore();
+            dropCounter = 0;
+        }
+
         function arenaSweep() {
             outer: for (let y = arena.length -1; y > 0; --y) {
                 for (let x = 0; x < arena[y].length; ++x) {
@@ -215,6 +227,10 @@
             const pos = player.pos.x;
             let offset = 1;
             rotate(player.matrix, dir);
+            if (player.pos.y + player.matrix.length > arena.length) {
+                rotate(player.matrix, -dir);
+                return;
+            }
             while (collide(arena, player)) {
                 player.pos.x += offset;
                 offset = -(offset + (offset > 0 ? 1 : -1));
@@ -251,7 +267,9 @@
             } else if (event.key === 'ArrowRight') {
                 playerMove(1);
             } else if (event.key === 'ArrowDown') {
-                playerDrop();
+                playerHardDrop();
+            } else if (event.key === 'ArrowUp') {
+                playerRotate(1);
             } else if (event.key === 'q') {
                 playerRotate(-1);
             } else if (event.key === 'w') {
